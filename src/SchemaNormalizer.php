@@ -147,6 +147,15 @@ final class SchemaNormalizer implements NormalizerInterface
 
         $itemSchema = $arraySchema->items;
 
+        if (\is_array($itemSchema)) {
+            return \array_map(function ($item, \stdClass $itemSchema) {
+                return $this->normalizeData(
+                    $item,
+                    $itemSchema
+                );
+            }, $array, $itemSchema);
+        }
+
         return \array_map(function ($item) use ($itemSchema) {
             return $this->normalizeData(
                 $item,
@@ -214,9 +223,7 @@ final class SchemaNormalizer implements NormalizerInterface
 
     private function hasArrayItemsDefinition(\stdClass $schema): bool
     {
-        return $this->describesType('array', $schema)
-            && \property_exists($schema, 'items')
-            && $schema->items instanceof \stdClass;
+        return $this->describesType('array', $schema) && \property_exists($schema, 'items');
     }
 
     private function describesType(string $type, \stdClass $schema): bool
